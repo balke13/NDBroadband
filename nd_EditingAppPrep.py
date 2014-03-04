@@ -27,9 +27,6 @@ arcpy.FeatureClassToFeatureClass_conversion(InputDataset, OutputFCLocation, Inpu
 # Process: Project the Input Dataset to WGS84
 arcpy.Project_management(InputDataset, OutputProject, "GEOGCS['GCS_WGS_1984',DATUM['D_WGS_1984',SPHEROID['WGS_1984',6378137.0,298.257223563]],PRIMEM['Greenwich',0.0],UNIT['Degree',0.0174532925199433]]", "NAD_1983_To_WGS_1984_1", "PROJCS['NAD_1983_StatePlane_North_Dakota_South_FIPS_3302_Feet',GEOGCS['GCS_North_American_1983',DATUM['D_North_American_1983',SPHEROID['GRS_1980',6378137.0,298.257222101]],PRIMEM['Greenwich',0.0],UNIT['Degree',0.0174532925199433]],PROJECTION['Lambert_Conformal_Conic'],PARAMETER['False_Easting',1968500.0],PARAMETER['False_Northing',0.0],PARAMETER['Central_Meridian',-100.5],PARAMETER['Standard_Parallel_1',46.18333333333333],PARAMETER['Standard_Parallel_2',47.48333333333333],PARAMETER['Latitude_Of_Origin',45.66666666666666],UNIT['Foot_US',0.3048006096012192]]")
 
-# Process: Calculate the TOTMaxAddDownTemp Field
-#arcpy.CalculateField_management(OutputProject, "TOTMaxAddDownTemp", "[TRANSTECH] & \"_\" & [MAXADDOWN]", "VB", "")
-
 #Check Geometry
 arcpy.CheckGeometry_management(OutputProject, OutTable)
 
