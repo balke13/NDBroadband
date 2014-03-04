@@ -13,88 +13,88 @@
 import arcpy, os, sys, string
 
 # Script arguments
-# NTIA Current Geodatabase
-# NTIA Previous Geodatabase to Comapre To
-# Output QAQC Geodatabase
+inNTIACur = arcpy.GetParameterAsText(0)
+
+inNTIAPrev = arcpy.GetParameterAsText(1)
+
+outGDB = arcpy.GetParameterAsText(2)
 
 
 # Local variables:
-inNTIACur = "Z:\\Broadband\\BBND\\NTIA_Deliverables\\Submission_20130930\\ND_SBDD_2013_09_30.gdb"
-inNTIAPrev = "Z:\\Broadband\\BBND\\NTIA_Deliverables\\Submission_20130401\\ND_SBDD_2013_04_01.gdb"
-outGDB = "Z:\\Broadband\\BBND\\Provider_Update\\201309\\ND_QAQC_20130930.gdb\\"
+
 calcSumFldFreq = "[PROVNAME] & \"_\" & [DBANAME] & \"_\" & [FRN] & \"_\" & [TRANSTECH] & \"_\" & [SPECTRUM] & \"_\" & [MAXADDOWN] & \"_\" & [MAXADUP] & \"_\" & [FREQUENCY]"
 calcSumFldProv = "[PROVNAME] & \"_\" & [DBANAME] & \"_\" & [FRN] & \"_\" & [TRANSTECH] & \"_\" & [SPECTRUM] & \"_\" & [FREQUENCY]"
-tblMergCur = outGDB + "tbl_temp_merge_cur_wired_wireless"
-tblMergPrev = outGDB + "tbl_temp_merge_prev_wired_wireless"
-tblSumMergCur1 = outGDB + "tbl_temp_sum_merge_cur_wired_wireless_freq"
-tblSumMergCur2 = outGDB + "tbl_temp_sum_merge_cur_wired_wireless_prov"
-tblSumMergPrev1 = outGDB + "tbl_temp_sum_merge_prev_wired_wireless_freq"
-tblSumMergPrev2 = outGDB + "tbl_temp_sum_merge_prev_wired_wireless_prov"
-tblMergCurPrev1 = outGDB + "tbl_temp_merge_cur_prev_wired_wireless_freq"
-tblMergCurPrev2 = outGDB + "tbl_temp_merge_cur_prev_wired_wireless_prov"
-tblSumMergCurPrev1 = outGDB + "tbl_temp_sum_merge_cur_prev_wired_wireless_freq"
-tblSumMergCurPrev2 = outGDB + "tbl_temp_sum_merge_cur_prev_wired_wireless_prov"
-tblChgNTIAFeat = outGDB + "tbl_final_NTIA_change_detection_feat_cnt"
-tblChgNTIAFeatProv = outGDB + "tbl_final_NTIA_change_detection_provider_tot"
-tblSumProvTot = outGDB + "tbl_final_NTIA_summary_provider_transtech"
-tblView1 = outGDB + "tbl_temp_merge_cur_prev_wired_wireless_freq_view"
-tblView2 = outGDB + "tbl_temp_merge_cur_prev_wired_wireless_prov_view"
-tblChkGeoFinal = outGDB + "tbl_final_NTIA_chk_geo"
-tblTempIden = outGDB + "tbl_temp_findIdentical"
-tblTempIdenSum = outGDB + "tbl_temp_findIdentical_sum"
+tblMergCur = outGDB + "\\tbl_temp_merge_cur_wired_wireless"
+tblMergPrev = outGDB + "\\tbl_temp_merge_prev_wired_wireless"
+tblSumMergCur1 = outGDB + "\\tbl_temp_sum_merge_cur_wired_wireless_freq"
+tblSumMergCur2 = outGDB + "\\tbl_temp_sum_merge_cur_wired_wireless_prov"
+tblSumMergPrev1 = outGDB + "\\tbl_temp_sum_merge_prev_wired_wireless_freq"
+tblSumMergPrev2 = outGDB + "\\tbl_temp_sum_merge_prev_wired_wireless_prov"
+tblMergCurPrev1 = outGDB + "\\tbl_temp_merge_cur_prev_wired_wireless_freq"
+tblMergCurPrev2 = outGDB + "\\tbl_temp_merge_cur_prev_wired_wireless_prov"
+tblSumMergCurPrev1 = outGDB + "\\tbl_temp_sum_merge_cur_prev_wired_wireless_freq"
+tblSumMergCurPrev2 = outGDB + "\\tbl_temp_sum_merge_cur_prev_wired_wireless_prov"
+tblChgNTIAFeat = outGDB + "\\tbl_final_NTIA_change_detection_feat_cnt"
+tblChgNTIAFeatProv = outGDB + "\\tbl_final_NTIA_change_detection_provider_tot"
+tblSumProvTot = outGDB + "\\tbl_final_NTIA_summary_provider_transtech"
+tblView1 = outGDB + "\\tbl_temp_merge_cur_prev_wired_wireless_freq_view"
+tblView2 = outGDB + "\\tbl_temp_merge_cur_prev_wired_wireless_prov_view"
+tblChkGeoFinal = outGDB + "\\tbl_final_NTIA_chk_geo"
+tblTempIden = outGDB + "\\tbl_temp_findIdentical"
+tblTempIdenSum = outGDB + "\\tbl_temp_findIdentical_sum"
 statFields = [["PROVNAME", "FIRST"]]
 caseFldFreq = ["PROVNAME", "DBANAME", "FRN", "TRANSTECH", "SPECTRUM", "MAXADDOWN", "MAXADUP", "FILENAME", "VERSION", "SUMFREQ" ]
 caseFldProv = ["PROVNAME", "DBANAME", "FRN", "TRANSTECH", "SPECTRUM", "FILENAME", "VERSION", "SUMPROV" ]
 whereClause = '"FREQUENCY" = 1'
 
-# List the Feature Classes in the Current NTIA Deliverable and create tempoarary tables in the QAQC file geodatabase
+### List the Feature Classes in the Current NTIA Deliverable and create tempoarary tables in the QAQC file geodatabase
 arcpy.env.workspace = inNTIACur
 fcListCur = arcpy.ListFeatureClasses ("","", "NATL_Broadband_Map")
 for f in fcListCur:
     desc = arcpy.Describe(f)
     fcName = desc.name
-    if fcName == "BB_Service_CensusBlock":
-        arcpy.FindIdentical_management (f, tblTempIden + f, ["PROVNAME", "FULLFIPSID", "TRANSTECH"])
-        arcpy.Statistics_analysis (tblTempIden + f, tblTempIdenSum + f, "IN_FID FIRST;IN_FID LAST", "FEAT_SEQ")
-        arcpy.TableSelect_analysis(tblTempIdenSum + f, outGDB + "tbl_final_NTIA_duplicates_census_block", "\"FREQUENCY\" >= 2")
-    elif fcName == "BB_Service_RoadSegment":
-        arcpy.FindIdentical_management (f, tblTempIden + f, ["Shape", "PROVNAME", "TRANSTECH"])
-        arcpy.Statistics_analysis (tblTempIden + f, tblTempIdenSum + f, "IN_FID FIRST;IN_FID LAST", "FEAT_SEQ")
-        arcpy.TableSelect_analysis(tblTempIdenSum + f, outGDB + "tbl_final_NTIA_duplicates_roadseg", "\"FREQUENCY\" >= 2")
-    elif fcName == "BB_Service_Wireless":
-        arcpy.FindIdentical_management (f, tblTempIden + f, ["Shape", "PROVNAME", "TRANSTECH","SPECTRUM"] )
-        arcpy.Statistics_analysis (tblTempIden + f , tblTempIdenSum + f, "IN_FID FIRST;IN_FID LAST", "FEAT_SEQ")
-        arcpy.TableSelect_analysis(tblTempIdenSum + f, outGDB + "tbl_final_NTIA_duplicates_wireless", "\"FREQUENCY\" >= 2")
-    elif fcName == "BB_Service_CAInstitutions":
-        arcpy.FindIdentical_management (f, tblTempIden + f, ["ANCHORNAME", "LATITUDE", "LONGITUDE"] )
-        arcpy.Statistics_analysis (tblTempIden + f , tblTempIdenSum + f, "IN_FID FIRST;IN_FID LAST", "FEAT_SEQ")
-        arcpy.TableSelect_analysis(tblTempIdenSum + f, outGDB + "tbl_final_NTIA_duplicates_cai", "\"FREQUENCY\" >= 2")
-    elif fcName == "BB_ConnectionPoint_MiddleMile":
-        arcpy.FindIdentical_management (f, tblTempIden + f, ["PROVNAME", "LATITUDE", "LONGITUDE"] )
-        arcpy.Statistics_analysis (tblTempIden + f , tblTempIdenSum + f, "IN_FID FIRST;IN_FID LAST", "FEAT_SEQ")
-        arcpy.TableSelect_analysis(tblTempIdenSum + f, outGDB + "tbl_final_NTIA_duplicates_middle_mile", "\"FREQUENCY\" >= 2")
-
+##    if fcName == "BB_Service_CensusBlock":
+##        arcpy.FindIdentical_management (f, tblTempIden + f, ["PROVNAME", "FULLFIPSID", "TRANSTECH"])
+##        arcpy.Statistics_analysis (tblTempIden + f, tblTempIdenSum + f, "IN_FID FIRST;IN_FID LAST", "FEAT_SEQ")
+##        arcpy.TableSelect_analysis(tblTempIdenSum + f, outGDB + "tbl_final_NTIA_duplicates_census_block", "\"FREQUENCY\" >= 2")
+##    elif fcName == "BB_Service_RoadSegment":
+##        arcpy.FindIdentical_management (f, tblTempIden + f, ["Shape", "PROVNAME", "TRANSTECH"])
+##        arcpy.Statistics_analysis (tblTempIden + f, tblTempIdenSum + f, "IN_FID FIRST;IN_FID LAST", "FEAT_SEQ")
+##        arcpy.TableSelect_analysis(tblTempIdenSum + f, outGDB + "tbl_final_NTIA_duplicates_roadseg", "\"FREQUENCY\" >= 2")
+##    elif fcName == "BB_Service_Wireless":
+##        arcpy.FindIdentical_management (f, tblTempIden + f, ["Shape", "PROVNAME", "TRANSTECH","SPECTRUM"] )
+##        arcpy.Statistics_analysis (tblTempIden + f , tblTempIdenSum + f, "IN_FID FIRST;IN_FID LAST", "FEAT_SEQ")
+##        arcpy.TableSelect_analysis(tblTempIdenSum + f, outGDB + "tbl_final_NTIA_duplicates_wireless", "\"FREQUENCY\" >= 2")
+##    elif fcName == "BB_Service_CAInstitutions":
+##        arcpy.FindIdentical_management (f, tblTempIden + f, ["ANCHORNAME", "LATITUDE", "LONGITUDE"] )
+##        arcpy.Statistics_analysis (tblTempIden + f , tblTempIdenSum + f, "IN_FID FIRST;IN_FID LAST", "FEAT_SEQ")
+##        arcpy.TableSelect_analysis(tblTempIdenSum + f, outGDB + "tbl_final_NTIA_duplicates_cai", "\"FREQUENCY\" >= 2")
+##    elif fcName == "BB_ConnectionPoint_MiddleMile":
+##        arcpy.FindIdentical_management (f, tblTempIden + f, ["PROVNAME", "LATITUDE", "LONGITUDE"] )
+##        arcpy.Statistics_analysis (tblTempIden + f , tblTempIdenSum + f, "IN_FID FIRST;IN_FID LAST", "FEAT_SEQ")
+##        arcpy.TableSelect_analysis(tblTempIdenSum + f, outGDB + "tbl_final_NTIA_duplicates_middle_mile", "\"FREQUENCY\" >= 2")
+##
     arcpy.MakeTableView_management (f, "temp_current_" + f,"","","")
-    arcpy.CopyRows_management ("temp_current_" + f, outGDB + "tbl_view_current_" + f)
-    arcpy.CheckGeometry_management (f, outGDB + "tbl_temp_chk_geo" + f)
+    arcpy.CopyRows_management ("temp_current_" + f, outGDB + "\\tbl_view_current_" + f)
+##    arcpy.CheckGeometry_management (f, outGDB + "tbl_temp_chk_geo" + f)
 
 # List the Feature Classes in the Previous NTIA Deliverable and create tempoarary tables in the QAQC file geodatabase
 arcpy.env.workspace = inNTIAPrev
 fcListPrev = arcpy.ListFeatureClasses ("","", "NATL_Broadband_Map")
 for fc in fcListPrev:
     arcpy.MakeTableView_management (fc, "temp_previous_" + fc,"","","")
-    arcpy.CopyRows_management ("temp_previous_" + fc, outGDB + "tbl_view_previous_" + fc)
+    arcpy.CopyRows_management ("temp_previous_" + fc, outGDB + "\\tbl_view_previous_" + fc)
 
 # Set the Environment Workspace to the QAQC File Geodatabase
 arcpy.env.workspace = outGDB
 
-# Merge the check geometry tables into a single file
-tblListChkGeo = arcpy.ListTables("tbl_temp_chk_geo*", "")
-for tblChkGeo in tblListChkGeo:
-    tblNameChkGeo = tblChkGeo.split("tbl_temp_chk_geo_").pop()
-    arcpy.AddField_management (tblChkGeo, "FILENAME", "TEXT", "", "", "50", "", "NULLABLE", "NON_REQUIRED", "")
-    arcpy.CalculateField_management (tblChkGeo, "FILENAME", "'" + tblNameChkGeo + "'", "PYTHON")
-mergChkGeo = arcpy.Merge_management(tblListChkGeo, tblChkGeoFinal)
+### Merge the check geometry tables into a single file
+##tblListChkGeo = arcpy.ListTables("tbl_temp_chk_geo*", "")
+##for tblChkGeo in tblListChkGeo:
+##    tblNameChkGeo = tblChkGeo.split("tbl_temp_chk_geo_").pop()
+##    arcpy.AddField_management (tblChkGeo, "FILENAME", "TEXT", "", "", "50", "", "NULLABLE", "NON_REQUIRED", "")
+##    arcpy.CalculateField_management (tblChkGeo, "FILENAME", "'" + tblNameChkGeo + "'", "PYTHON")
+##mergChkGeo = arcpy.Merge_management(tblListChkGeo, tblChkGeoFinal)
 
 # List the tables from the CURRENT NTIA deliverable in the QAQC File Geodatabase then add and caluclate the summary, filename, and version fields
 tblListCur = arcpy.ListTables ("tbl_view_current*", "")
