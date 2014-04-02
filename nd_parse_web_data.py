@@ -16,12 +16,12 @@ now = datetime.datetime.now()
 
 # Local variables:
 InWebProvTot = arcpy.GetParameterAsText(0)
+PathFGDB = arcpy.GetParameterAsText(1) + "\\"
 InFileName = os.path.basename(InWebProvTot).rstrip(os.path.splitext(InWebProvTot)[1])
-PathFGDB = "Z:\\Broadband\\BBND\\Website_Data\\Review\\"
 NameFGDB = "ParsedWebData_" + now.strftime("%Y%m%d") + ".gdb"
 OutFGDB = PathFGDB + NameFGDB + "\\"
 fieldName = "PKEYTOT"
-JoinTable = "Z:\\Broadband\\BBND\\Website_Data\\Review\\Temp.gdb\\ND_ProvName_PKEY"
+JoinTable = "Z:\\Broadband\\BBND\\Provider_Update\\nd_provider_table.csv"
 LayerName = "tempFeatureLayer"
 
 # Create a new output file geodatabase
@@ -45,34 +45,16 @@ arcpy.AddField_management (OutFGDB + InFileName, "PKEYTOT", "TEXT", "", "", 15, 
 # Caluculate the ProvTot Field
 arcpy.CalculateField_management (OutFGDB + InFileName, "PKEYTOT", "!PKEY! + \"_\" + str(!TRANSTECH!)", "PYTHON")
 
-#Set a list variable to hold the unique values from TOTMaxAddDownTemp
-list = []
+values = [row[0] for row in arcpy.da.SearchCursor(OutFGDB + InFileName, (fieldName))]
+uniqueValues = set(values)
+uniqueValues2 = list (uniqueValues)
 
-#Open a search cursor on the OutputProject feature class and loop through all the unique values in the TOTMaxAddDownTemp field
-rows = arcpy.SearchCursor (OutFGDB + InFileName)
-row = rows.next()
-
-#Use a while loop to cursor through all the records and append unique values to the list variable
-while row:
-    value = row.getValue (fieldName)
-    if value not in list:
-        list.append (value)
-    row = rows.next()
-
-#Sort the list variable
-list.sort()
-
-#If a value in the list variable is blank, remove it from the list variable
-if ' ' in list:
-    list.remove (' ')
-
-#Loop through the list variable
 x = 0
-for item in list:
+for value in uniqueValues2:
 
     #Create the query
-    query = fieldName + " = '" + list[x] + "'"
+    query = fieldName + " = '" + uniqueValues2[x] + "'"
 
     #Execute the Select tool
-    arcpy.Select_analysis (OutFGDB + InFileName, OutFGDB + list[x], query )
+    arcpy.Select_analysis (OutFGDB + InFileName, OutFGDB + InFileName + "_" + uniqueValues2[x], query )
     x = x + 1
