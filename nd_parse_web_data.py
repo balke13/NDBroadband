@@ -30,16 +30,14 @@ arcpy.CreateFileGDB_management (PathFGDB, NameFGDB)
 # Create a copy of the input FeatureClass
 arcpy.Copy_management(InWebProvTot, OutFGDB + InFileName,"")
 
-arcpy.AddField_management (OutFGDB + InFileName, "PKEY", "TEXT", "", "", 5, "", "", "", "")
-arcpy.MakeFeatureLayer_management (OutFGDB + InFileName, LayerName)
-arcpy.AddJoin_management (LayerName,"PROVNAME", JoinTable, "PROVNAME" )
-arcpy.CalculateField_management (LayerName, "Web_ProviderAndTechnology.PKEY", "!ND_ProvName_PKEY.PKEY!", "PYTHON", "")
-arcpy.RemoveJoin_management(LayerName, "ND_ProvName_PKEY")
+# Create a copy of the input Provider Table
+arcpy.TableToTable_conversion (JoinTable, OutFGDB, "tbl_nd_provider")
 
 # Add a new ProvTot field
-arcpy.JoinField_management (OutFGDB + InFileName, "PROVNAME", JoinTable, "PROVNAME", ["PKEY"])
+arcpy.env.workspace = OutFGDB
+arcpy.JoinField_management (OutFGDB + InFileName, "PROVNAME", "tbl_nd_provider", "PROVNAME", ["PKEY"])
 
-# Add a new ProvTot field
+# Add a new PKEYTot field
 arcpy.AddField_management (OutFGDB + InFileName, "PKEYTOT", "TEXT", "", "", 15, "", "", "", "")
 
 # Caluculate the ProvTot Field
