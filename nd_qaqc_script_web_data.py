@@ -13,17 +13,11 @@
 import arcpy, os, sys, string
 
 # Script arguments
-inWebCur = arcpy.GetParameterAsText(0)
-if inWebCur == '#' or not inWebCur:
-    inWebCur = "Z:\\Broadband\\BBND\\Website_Data\\Submission_20131030\\ND_BB_Web_Data_20131030.gdb\\" # provide a default value if unspecified
+inWebCur = arcpy.GetParameterAsText(0) + "\\"
 
-inWebPrev = arcpy.GetParameterAsText(1)
-if inWebPrev == '#' or not inWebPrev:
-    inWebPrev = "Z:\\Broadband\\BBND\\Website_Data\\Submission_20130930\\ND_BB_Web_Data_20130930.gdb\\" # provide a default value if unspecified
+inWebPrev = arcpy.GetParameterAsText(1) + "\\"
 
 outGDB = arcpy.GetParameterAsText(2) + "\\"
-if outGDB == '#' or not outGDB:
-    outGDB = "Z:\\Broadband\\BBND\\Provider_Update\\201309\ND_QAQC_20131030.gdb\\" # provide a default value if unspecified
 
 # Local variables:
 calcFldProvTotSpd = "!PROVNAME! + \"_\" + !FRN! + \"_\" + str(!TRANSTECH!) + \"_\" + str(!SPECTRUM!) + \"_\" + !MAXADDOWN! + \"_\" + !MAXADUP!"
@@ -31,8 +25,8 @@ calcSumFldArea = "!SUMAREA! + \"_\" + str(!AREADBL!)"
 calcSumFldProv = "!PROVNAME! + \"_\" + !FRN! + \"_\" + str(!TRANSTECH!) + \"_\" + str(!SPECTRUM!)"
 whereClause = '"FREQUENCY" = 1'
 
-inWebProvTotCur = inWebCur + "\\Web_ProviderAndTechnology"
-inWebProvTotPrev = inWebPrev + "\\Web_ProviderAndTechnology"
+inWebProvTotCur = inWebCur + "Web_ProviderAndTechnology"
+inWebProvTotPrev = inWebPrev + "Web_ProviderAndTechnology"
 
 tblWebCurSum = "tbl_final_WEB_current_summary"
 
