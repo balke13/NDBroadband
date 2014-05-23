@@ -14,9 +14,7 @@ import arcpy, os, sys, string
 
 # Script arguments
 inWebCur = arcpy.GetParameterAsText(0) + "\\"
-
 inWebPrev = arcpy.GetParameterAsText(1) + "\\"
-
 outGDB = arcpy.GetParameterAsText(2) + "\\"
 
 # Local variables:
