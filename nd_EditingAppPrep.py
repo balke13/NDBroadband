@@ -15,11 +15,11 @@ fieldName = "TOTMaxAddDownTemp"
 
 # Process: Get the InputDataset File Name
 InputFileName = os.path.basename(InputDataset).rstrip(os.path.splitext(InputDataset)[1])
-OutputProject = "Z:\\Broadband\\BBND\\Provider_Update\\201309\\Scratch.gdb\\" + InputFileName + "_Project"
-OutputShapefile = "Z:\\Broadband\\BBND\\Provider_Update\\201309\\Shapefiles\\"
-OutputZipFiles = "Z:\\Broadband\\BBND\\Provider_Update\\201309\\ZipFiles\\"
-OutputFCLocation = "Z:\\Broadband\\BBND\\Provider_Update\\201309\\NDUpdate20130930.gdb\\Provider_Coverage\\"
-OutTable = "Z:\\Broadband\\BBND\\Provider_Update\\201309\\NDUpdate20130930.gdb\\" + "tbl_CheckGeo_" + InputFileName
+OutputProject = "Z:\\Broadband\\BBND\\Provider_Update\\201409\\Scratch.gdb\\" + InputFileName + "_Project"
+OutputShapefile = "Z:\\Broadband\\BBND\\Provider_Update\\201409\\Shapefiles\\"
+OutputZipFiles = "Z:\\Broadband\\BBND\\Provider_Update\\201409\\ZipFiles\\"
+OutputFCLocation = "Z:\\Broadband\\BBND\\Provider_Update\\201409\\NDUpdate20140930.gdb\\Provider_Coverage\\"
+OutTable = "Z:\\Broadband\\BBND\\Provider_Update\\201409\\NDUpdate20140930.gdb\\" + "tbl_CheckGeo_" + InputFileName
 
 # Create a copy of the input FeatureClass
 arcpy.FeatureClassToFeatureClass_conversion(InputDataset, OutputFCLocation, InputFileName,"")
@@ -30,10 +30,8 @@ arcpy.Project_management(InputDataset, OutputProject, "GEOGCS['GCS_WGS_1984',DAT
 #Check Geometry
 arcpy.CheckGeometry_management(OutputProject, OutTable)
 
-
 #Repair Geometry
 arcpy.RepairGeometry_management (OutputProject)
-
 
 #Set a list variable to hold the unique values from TOTMaxAddDownTemp
 list = []

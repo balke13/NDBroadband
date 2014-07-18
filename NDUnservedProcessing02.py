@@ -21,10 +21,14 @@ if not env.workspace:
     arcpy.env.workspace = os.path.join (dirPath, "BaseData.gdb")
 
 outCS = arcpy.SpatialReference(3857)
-codeCalcPct = """def calcPct(fld,pop):
-    dec = float(fld)/float(pop)
-    pct = dec*100
-    return round(pct,2)"""
+codeCalcPct = """def calcPct(fld1,fld2,pop):
+    chk = float(fld1 - fld2)
+    if chk <= 0:
+        return 0
+    elif chk > 0:
+        dec = float(fld1 - fld2)/float(pop)
+        pct = dec*100
+        return round(pct,2)"""
 codeCalcCls = """def calcCls(div):
     cls = 0
     if div > 10.0 and div <= 40.0:
@@ -76,15 +80,15 @@ try:
         arcpy.SelectLayerByAttribute_management (tempLyrFinal, "NEW_SELECTION", "\"Basic_TOTPOP\" IS NULL")
         arcpy.CalculateField_management (tempLyrFinal, "Basic_TOTPOP", 0)
         #Calculate the Final Population Class and Percentage Fields
-        arcpy.CalculateField_management (finalGDB + fc, "AdvPopPct", "calcPct(!Advanced_TOTPOP!, !TOTPOP_CY!)", "PYTHON_9.3", codeCalcPct)
+        arcpy.CalculateField_management (finalGDB + fc, "AdvPopPct", "round((!Advanced_TOTPOP!/ !TOTPOP_CY!)*100,2)", "PYTHON_9.3", "")
         arcpy.CalculateField_management (finalGDB + fc, "AdvPopCls", "calcCls(!AdvPopPct!)", "PYTHON_9.3", codeCalcCls)
-        arcpy.CalculateField_management (finalGDB + fc, "StdPopPct", "calcPct(!Standard_TOTPOP!, !TOTPOP_CY!)", "PYTHON_9.3", codeCalcPct)
+        arcpy.CalculateField_management (finalGDB + fc, "StdPopPct", "calcPct(!Standard_TOTPOP!,!Advanced_TOTPOP!,!TOTPOP_CY!)", "PYTHON_9.3", codeCalcPct)
         arcpy.CalculateField_management (finalGDB + fc, "StdPopCls", "calcCls(!StdPopPct!)", "PYTHON_9.3", codeCalcCls)
-        arcpy.CalculateField_management (finalGDB + fc, "ModPopPct", "calcPct(!Moderate_TOTPOP!, !TOTPOP_CY!)", "PYTHON_9.3", codeCalcPct)
+        arcpy.CalculateField_management (finalGDB + fc, "ModPopPct", "calcPct(!Moderate_TOTPOP!,!Standard_TOTPOP!,!TOTPOP_CY!)", "PYTHON_9.3", codeCalcPct)
         arcpy.CalculateField_management (finalGDB + fc, "ModPopCls", "calcCls(!ModPopPct!)", "PYTHON_9.3", codeCalcCls)
-        arcpy.CalculateField_management (finalGDB + fc, "BasPopPct", "calcPct(!Basic_TOTPOP!, !TOTPOP_CY!)", "PYTHON_9.3", codeCalcPct)
+        arcpy.CalculateField_management (finalGDB + fc, "BasPopPct", "calcPct(!Basic_TOTPOP!,!Moderate_TOTPOP!,!TOTPOP_CY!)", "PYTHON_9.3", codeCalcPct)
         arcpy.CalculateField_management (finalGDB + fc, "BasPopCls", "calcCls(!BasPopPct!)", "PYTHON_9.3", codeCalcCls)
-        arcpy.CalculateField_management (finalGDB + fc, "NonePopPct", "100-(!AdvPopPct!+ !StdPopPct!+ !ModPopPct!+ !BasPopPct!)", "PYTHON_9.3" )
+        arcpy.CalculateField_management (finalGDB + fc, "NonePopPct", "round(100-(!AdvPopPct!+ !StdPopPct!+ !ModPopPct!+ !BasPopPct!),2)", "PYTHON_9.3" )
     #Delete Temporary Feature Classes and Tables
     arcpy.env.workspace = scratchGDB
     fcTemp = arcpy.ListFeatureClasses ()
