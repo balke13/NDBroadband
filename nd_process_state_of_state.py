@@ -36,15 +36,14 @@ def parseFC (featureclass, field):
 
 # Script arguments
 inWebCur = "Z:\\Broadband\\BBND\\Website_Data\\Submission_20131030\\ND_BB_Web_Data_20131030.gdb\\Web_ProviderAndTechnology"
-
-now = datetime.datetime.now()
-outLoc = "Z:\\Broadband\\BBND\\Operational_Data\\Reports\\BB_State_of_the_State\\" + now.strftime("%Y_%m_%d")
+outLoc = r"Z:\Broadband\BBND\Operational_Data\Reports\BB_State_of_the_State" + os.path.sep + now.strftime("%Y_%m_%d")
 if not os.path.exists(outLoc): os.makedirs(outLoc)
-outShp = "Z:\\Broadband\\BBND\\Operational_Data\\Reports\\BB_State_of_the_State\\" + now.strftime("%Y_%m_%d") + "\\Shapefiles\\"
+outShp = r"Z:\Broadband\BBND\Operational_Data\Reports\BB_State_of_the_State" + os.path.sep + now.strftime("%Y_%m_%d") + "\\Shapefiles\\"
 if not os.path.exists(outShp): os.makedirs(outShp)
 
+now = datetime.datetime.now()
 # Local variables:
-JoinTable = "Z:\\Broadband\\BBND\\Provider_Update\\nd_provider_table.csv"
+JoinTable = r"Z:\Broadband\BBND\Provider_Update\nd_provider_table.csv"
 fcWebCur1 = "temp_web_prov_tot_dice.shp"
 fcWebCur2 = "fc_web_prov_tot.shp"
 tblFinal = "tbl_nd_state_of_state"

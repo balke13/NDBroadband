@@ -36,24 +36,16 @@ def parseFC (featureclass, field):
 
 # Script arguments
 curFCNTIABlks = arcpy.GetParameterAsText(0)
-if curFCNTIABlks == '#' or not curFCNTIABlks:
-    curFCNTIABlks = "Z:\\Broadband\\BBND\\NTIA_Deliverables\\Submission_20130930\\ND_SBDD_2013_09_30.gdb\\NATL_Broadband_Map\\BB_Service_CensusBlock" # provide a default value if unspecified
-
 curFCNTIARds = arcpy.GetParameterAsText(1)
-if curFCNTIARds == '#' or not curFCNTIARds:
-    curFCNTIARds = "Z:\\Broadband\\BBND\\NTIA_Deliverables\\Submission_20130930\\ND_SBDD_2013_09_30.gdb\\NATL_Broadband_Map\\BB_Service_RoadSegment" # provide a default value if unspecified
-
 curFCNTIAWireless = arcpy.GetParameterAsText(2)
-if curFCNTIAWireless == '#' or not curFCNTIAWireless:
-    curFCNTIAWireless = "Z:\\Broadband\\BBND\\NTIA_Deliverables\\Submission_20130930\\ND_SBDD_2013_09_30.gdb\\NATL_Broadband_Map\\BB_Service_Wireless" # provide a default value if unspecified
 
 now = datetime.datetime.now()
 
 # Local variables:
-JoinTable = "Z:\\Broadband\\BBND\\Provider_Update\\nd_provider_table.csv"
-PathFGDB = "C:\\Data\\Broadband\\BBND\\NTIA_20140401\\"
+JoinTable = "rZ:\Broadband\BBND\Provider_Update\nd_provider_table.csv"
+PathFGDB = "rC:\Data\Broadband\BBND\NTIA_20140401"
 NameFGDB = "ParsedNTIAData_" + now.strftime("%Y%m%d") + ".gdb"
-OutFGDB = PathFGDB + NameFGDB + "\\"
+OutFGDB = PathFGDB + NameFGDB + os.path.sep
 fcNTIABlks = OutFGDB + "fc_ntia_blks"
 fcNTIARds = OutFGDB + "fc_ntia_rds"
 fcNTIAWireless = OutFGDB + "fc_ntia_wireless"
